@@ -1,76 +1,102 @@
 <?php
+global $conn;
 session_start();
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
     exit();
 }
+
+$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === "Admin";
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DLMS Dashboard</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>🚗 DLMS</h2>
-    <ul>
-        <li>🏠 Dashboard</li>
-        <li>🧑 Customers</li>
-        <li>📝 Tests</li>
-        <li>🎓 Issue License</li>
-        <li>🔄 Renew License</li>
-        <li>⬆️ Upgrade License</li>
-        <li>📜 History</li>
-        <li class="logout"><a href="login.php">🚪 Logout</a></li>
-    </ul>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
+    <a class="navbar-brand fw-bold text-primary fs-4">🚗 DLMS</a>
+
+    <div class="d-flex ms-auto align-items-center gap-3">
+
+        <?php if ($isAdmin): ?>
+            <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">
+                🔑 Admin
+            </span>
+        <?php endif; ?>
+
+        <span class="fw-semibold text-dark">Hello, <?php echo $_SESSION['username']; ?> 👋</span>
+
+        <a href="login.php" class="btn btn-outline-danger">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <div class="row g-4">
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow card-box h-100">
+                <h3>🧑 Manage Customers</h3>
+                <p>Add, edit, and view customer information.</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow card-box h-100">
+                <h3>📝 Manage Tests</h3>
+                <p>Record theory and practical test results.</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow card-box h-100">
+                <h3>🎓 Issue License</h3>
+                <p>Issue a new driving license after tests.</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow card-box h-100">
+                <h3>🔄 Renew License</h3>
+                <p>Extend license expiration dates.</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow card-box h-100">
+                <h3>⬆️ Upgrade License</h3>
+                <p>Upgrade license type (LV → Truck, etc.).</p>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow card-box h-100">
+                <h3>📜 License History</h3>
+                <p>View previous renewals and upgrades.</p>
+            </div>
+        </div>
+
+        <?php if ($isAdmin): ?>
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card shadow card-box h-100" style="border-left: 5px solid #dc3545;">
+                    <h3>👥 Manage Employees</h3>
+                    <p>Add, edit, delete, and view employee accounts.</p>
+                </div>
+            </div>
+        <?php endif; ?>
+
+    </div>
+
 </div>
 
-<div class="main">
-
-    <header>
-        <h1>Welcome, <?php echo $_SESSION['username']; ?> 👋</h1>
-    </header>
-
-    <section class="cards">
-
-        <div class="card">
-            <h3>🧑 Manage Customers</h3>
-            <p>Add, edit, and view customer information.</p>
-        </div>
-
-        <div class="card">
-            <h3>📝 Manage Tests</h3>
-            <p>Record theory and practical test results.</p>
-        </div>
-
-        <div class="card">
-            <h3>🎓 Issue License</h3>
-            <p>Issue a new driving license after tests.</p>
-        </div>
-
-        <div class="card">
-            <h3>🔄 Renew License</h3>
-            <p>Extend license expiration dates.</p>
-        </div>
-
-        <div class="card">
-            <h3>⬆️ Upgrade License</h3>
-            <p>Upgrade license type (e.g., LV → Truck).</p>
-        </div>
-
-        <div class="card">
-            <h3>📜 License History</h3>
-            <p>View previous renewals and upgrades.</p>
-        </div>
-
-    </section>
-
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,121 +1,24 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
 body {
     background: linear-gradient(135deg, #d0f5ee, #e8f2ff);
-    display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
 
-.sidebar {
-    width: 240px;
-    background: #003a7a;
-    color: white;
-    padding: 25px 20px;
-    flex-shrink: 0;
-}
-
-.sidebar h2 {
-    margin-bottom: 25px;
-    font-size: 26px;
-}
-
-.sidebar ul {
-    list-style: none;
-}
-
-.sidebar ul li {
-    padding: 12px 8px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.2s;
-    font-size: 15px;
-}
-
-.sidebar ul li:hover {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-.sidebar ul li.logout a {
-    color: white;
-    text-decoration: none;
-}
-
-.main {
-    flex-grow: 1;
+.card-box {
     padding: 30px;
-    overflow-y: auto;
-}
-
-header h1 {
-    font-size: 32px;
-    color: #0f2338;
-    margin-bottom: 25px;
-}
-
-.cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 30px;
-    padding: 10px;
-    height: calc(100vh - 120px);
-}
-
-.card {
-    background: white;
-    padding: 35px;
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    border-radius: 14px;
+    min-height: 200px;
     transition: 0.2s;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 180px;
 }
 
-.card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.20);
+.card-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.2);
 }
 
-.card h3 {
-    font-size: 22px;
-    margin-bottom: 10px;
+.card-box h3 {
     color: #003a7a;
 }
 
-.card p {
-    font-size: 15px;
+.card-box p {
     color: #333;
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        width: 190px;
-    }
-
-    header h1 {
-        font-size: 26px;
-    }
-}
-
-@media (max-width: 480px) {
-    body {
-        flex-direction: column;
-    }
-
-    .sidebar {
-        width: 100%;
-        text-align: center;
-    }
-
-    .cards {
-        grid-template-columns: 1fr;
-    }
 }
