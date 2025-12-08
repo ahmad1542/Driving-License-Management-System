@@ -1,5 +1,4 @@
 <?php
-global $conn;
 session_start();
 if (!isset($_SESSION['username'])) {
     header("Location: login.php");
@@ -34,7 +33,7 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === "Admin";
 
         <span class="fw-semibold text-dark">Hello, <?php echo $_SESSION['username']; ?> 👋</span>
 
-        <a href="login.php" class="btn btn-outline-danger">Logout</a>
+        <a href="logout.php" class="btn btn-outline-danger">Logout</a>
     </div>
 </nav>
 
