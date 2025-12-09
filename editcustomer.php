@@ -39,6 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $blood = $_POST['blood'];
     $address = $_POST['address'];
 
+    // If uploading new photo
+    if (!empty($_FILES["photo"]["name"])) {
+
+        $fileTmp = $_FILES["photo"]["tmp_name"];
+
+        if ($_FILES["photo"]["size"] > 2 * 1024 * 1024) {
+            echo "<div class='alert alert-danger'>Image too large (max 2MB)</div>";
+            exit;
+        }
+
+        $imageData = base64_encode(file_get_contents($fileTmp));
+        $mime = mime_content_type($fileTmp);
+
+        $_SESSION["customer_photo"] = "data:$mime;base64,$imageData";
+    }
+
     $stmt = $conn->prepare("
         UPDATE Customer
         SET FName=?, SName=?, ThName=?, LName=?, BirthDate=?, BloodGroup=?, Address=?
@@ -105,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ✏️ Edit Customer
             </h4>
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
 
                 <input type="hidden" name="id" value="<?= $customer['CustIDNo'] ?>">
 
@@ -126,6 +142,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <label class="form-label">Blood Group</label>
                 <input type="text" name="blood" class="form-control mb-3" value="<?= $customer['BloodGroup'] ?>">
+
+                <div class="mb-3">
+                    <label class="form-label">Current Photo</label><br>
+
+                    <?php if (!empty($_SESSION["customer_photo"])): ?>
+                        <img src="<?= $_SESSION["customer_photo"] ?>" width="120" style="border-radius:8px; border:1px solid #ccc;">
+                    <?php else: ?>
+                        <p>No photo uploaded</p>
+                    <?php endif; ?>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Change Photo</label>
+                    <input type="file" name="photo" accept="image/*" class="form-control">
+                </div>
 
                 <label class="form-label">Address</label>
                 <input type="text" name="address" class="form-control mb-3" value="<?= $customer['Address'] ?>" required>

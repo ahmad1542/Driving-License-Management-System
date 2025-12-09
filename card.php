@@ -149,12 +149,23 @@ $license = $stmt->get_result()->fetch_assoc();
 
                 <!-- PHOTO -->
                 <div style="
-                width:95px;
-                height:125px;
-                background:#cfcfcf;
-                border-radius:10px;
-                border:2px solid #999;">
-                    <img src="pics/Ahmad_Hussein_95x125.jpg" alt="">
+                            width:95px;
+                            height:125px;
+                            overflow:hidden;                 /* hides overflow */
+                            border-radius:10px;
+                            border:2px solid #666;
+                            background:#eee;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                        ">
+                    <img src="<?= $_SESSION['customer_photo'] ?>"
+                         style="
+                                width:100%;
+                                height:100%;
+                                object-fit:cover;        /* crop elegantly */
+                                object-position:center;  /* center the crop */
+                             ">
                 </div>
 
             </div>

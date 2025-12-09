@@ -46,6 +46,10 @@ if (isset($_POST["renew"])) {
     $ltid      = $_POST["ltid"];
     $newExpire = $_POST["newExpire"];
 
+    if ($newExpire < $oldExpire) {
+        echo "<div class='alert alert-danger'>The new expire date must be more than old expire date</div>";
+    }
+
     $today = date("Y-m-d");
 
     // 1) Determine next UpdateID
@@ -63,6 +67,7 @@ if (isset($_POST["renew"])) {
         INSERT INTO LicenseUpdate (LicenseNumber, UpdateID, LTID, IssueDate, ExpireDate)
         VALUES (?, ?, ?, ?, ?)
     ");
+
     $stmt->bind_param("iiiss",
             $licenseNumber,
             $updateId,

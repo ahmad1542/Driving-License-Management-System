@@ -20,6 +20,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $BloodGroup = trim($_POST['BloodGroup']);
     $Address = trim($_POST['Address']);
 
+    unset($_SESSION['customer_photo']);
+
+    if (!empty($_FILES["photo"]["name"])) {
+        $fileTmp = $_FILES["photo"]["tmp_name"];
+
+        // Max size: 2MB
+        if ($_FILES["photo"]["size"] > 2 * 1024 * 1024) {
+            echo "<div class='alert alert-danger'>Image too large (max 2MB)</div>";
+            exit;
+        }
+
+        // Convert to Base64
+        $imageData = base64_encode(file_get_contents($fileTmp));
+        $mime = mime_content_type($fileTmp);
+
+        // Store image in session
+        $_SESSION["customer_photo"] = "data:$mime;base64,$imageData";
+    }
+
     $stmt = $conn->prepare(
             "insert into Customer (CustIDNo, FName, SName, ThName, LName, BirthDate, BloodGroup, Address)
          values (?, ?, ?, ?, ?, ?, ?, ?)"
@@ -123,7 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="alert alert-danger">Error adding customer.</div>
     <?php endif; ?>
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
 
         <div class="mb-3">
             <label class="form-label">Customer ID</label>
@@ -173,6 +192,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <option>AB+</option>
                 <option>AB-</option>
             </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Customer Photo</label>
+            <input type="file" name="photo" accept="image/*" class="form-control">
         </div>
 
         <div class="mb-3">

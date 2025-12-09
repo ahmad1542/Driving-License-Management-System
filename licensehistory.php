@@ -15,9 +15,9 @@ if (isset($_POST["search"])) {
 
     $licenseNumber = $_POST["licenseNumber"];
 
-    // ---------------------------
-    // GET CURRENT LICENSE DETAILS
-    // ---------------------------
+// ---------------------------
+// GET CURRENT LICENSE DETAILS
+// ---------------------------
     $stmt = $conn->prepare("
         SELECT 
             c.CustID,
@@ -37,46 +37,58 @@ if (isset($_POST["search"])) {
         $message = "<div class='alert alert-danger'>❌ License not found!</div>";
     } else {
 
-        // Add current issuing record to timeline
-        $fullHistory[] = [
-                "Type" => "Issued",
-                "LTID" => $customerInfo["LTID"],
-                "IssueDate" => $customerInfo["IssueDate"],
-                "ExpireDate" => $customerInfo["ExpireDate"]
-        ];
+        $fullHistory = [];
 
-        // ---------------------------
-        // GET ALL RENEW / UPGRADE HISTORY
-        // ---------------------------
+        // 1) Get ALL past states from LicenseUpdate in chronological order
         $stmt = $conn->prepare("
-            SELECT UpdateID, LTID, IssueDate, ExpireDate
-            FROM LicenseUpdate
-            WHERE LicenseNumber = ?
-            ORDER BY UpdateID DESC
-        ");
+        SELECT UpdateID, LTID, IssueDate, ExpireDate
+        FROM LicenseUpdate
+        WHERE LicenseNumber = ?
+        ORDER BY UpdateID ASC   -- oldest first
+    ");
         $stmt->bind_param("i", $licenseNumber);
         $stmt->execute();
         $updates = $stmt->get_result();
 
         while ($row = $updates->fetch_assoc()) {
             $fullHistory[] = [
-                    "Type" => "Updated",
                     "LTID" => $row["LTID"],
                     "IssueDate" => $row["IssueDate"],
                     "ExpireDate" => $row["ExpireDate"]
             ];
         }
+
+        // 2) Append the current license state at the END
+        $fullHistory[] = [
+                "LTID" => $customerInfo["LTID"],
+                "IssueDate" => $customerInfo["IssueDate"],
+                "ExpireDate" => $customerInfo["ExpireDate"]
+        ];
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>License Full History</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Smooth transition */
+        tbody tr[onclick] td {
+            transition: background-color 0.2s;
+        }
+
+        /* Hover effect for clickable rows */
+        tbody tr[onclick]:hover td {
+            background-color: #dff0ff !important;
+        }
+    </style>
+
+
 </head>
 <body>
 
@@ -140,15 +152,40 @@ if (isset($_POST["search"])) {
                 </thead>
 
                 <tbody>
-                <?php foreach ($fullHistory as $event): ?>
-                    <tr>
-                        <td><?= $event["Type"] ?></td>
-                        <td><?= $event["LTID"] ?></td>
-                        <td><?= $event["IssueDate"] ?></td>
-                        <td><?= $event["ExpireDate"] ?></td>
-                    </tr>
-                <?php endforeach; ?>
+                <?php if (!empty($fullHistory)): ?>
+                    <?php
+                    $total = count($fullHistory);
+
+                    foreach ($fullHistory as $index => $row):
+
+                        if ($total === 1) {
+                            $type = "Issued";
+                        } elseif ($index === 0) {
+                            $type = "Issued";
+                        } elseif ($index === $total - 1) {
+                            $type = "Current";
+                        } else {
+                            $type = "Updated";
+                        }
+
+                        // Make row clickable ONLY for the Issued event
+                        $clickable = ($type === "Issued")
+                                ? "onclick=\"window.location='card.php?lic=$licenseNumber&cust={$customerInfo['CustID']}'\" style='cursor:pointer;'"
+                                : "";
+                        ?>
+
+                        <tr <?= $clickable ?>>
+                            <td><?= $type ?></td>
+                            <td><?= $row["LTID"] ?></td>
+                            <td><?= $row["IssueDate"] ?></td>
+                            <td><?= $row["ExpireDate"] ?></td>
+                        </tr>
+
+                    <?php endforeach; ?>
+                <?php endif; ?>
                 </tbody>
+
+
             </table>
 
         </div>
