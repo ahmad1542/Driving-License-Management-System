@@ -15,8 +15,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $grade = $_POST['grade'];
     $testType = $_POST['testType'];
 
-    $insert = "INSERT INTO Test (CustomerID, LTID, Grade, TestType)
-               VALUES ('$customer', '$ltid', '$grade', '$testType')";
+    $insert = "insert into Test (CustomerID, LTID, Grade, TestType)
+               values ('$customer', '$ltid', '$grade', '$testType')";
 
     if ($conn->query($insert)) {
         $message = "<div class='alert alert-success'>Test Added Successfully!</div>";
@@ -77,7 +77,7 @@ $tests = $conn->query("
 
                 <div class="col-md-6">
                     <label class="form-label">License Type ID (LTID)</label>
-                    <input type="number" class="form-control" name="licenseType" required>
+                    <input type="number" class="form-control" name="licenseType" min="1" max="6" required>
                 </div>
             </div>
 

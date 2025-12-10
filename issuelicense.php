@@ -9,13 +9,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $custID = $_POST["customerid"];
     $ltid   = $_POST["licensetype"];
 
-    // -----------------------------
-    // 1) Check if customer exists
-    // -----------------------------
-    $stmt = $conn->prepare("SELECT * FROM customer WHERE CustIDNo = ?");
-    $stmt->bind_param("s", $custID);
-    $stmt->execute();
-    $customer = $stmt->get_result()->fetch_assoc();
+    $customerExist = $conn->query("select * from customer where CustIDNo = '$custID'");
+    $customer = $customerExist->fetch_assoc();
 
     if (!$customer) {
         $message = "<div class='alert alert-danger'>❌ Customer does not exist.</div>";
@@ -23,16 +18,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $canIssue = true;
 
-        // ----------------------------------------------------
-        // 2) Check if customer already has SAME license type
-        // ----------------------------------------------------
-        $stmt = $conn->prepare("
-            SELECT * FROM custlic 
-            WHERE CustID = ? AND LTID = ?
-        ");
-        $stmt->bind_param("si", $custID, $ltid);
-        $stmt->execute();
-        $existingLicense = $stmt->get_result()->fetch_assoc();
+        $hasLicense = $conn->query("select * from custlic 
+                                           where CustID = '$custID' AND LTID = '$ltid'");
+        $existingLicense = $hasLicense->fetch_assoc();
 
         if ($existingLicense) {
             $message = "
@@ -45,24 +33,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $canIssue = false;
         }
 
-        // ------------------------------------
-        // 3) Check test results if allowed
-        // ------------------------------------
         if ($canIssue) {
 
-            $stmt = $conn->prepare("
-                SELECT TestType, Grade
-                FROM test
-                WHERE CustomerID = ? AND LTID = ?
-            ");
-            $stmt->bind_param("si", $custID, $ltid);
-            $stmt->execute();
-            $tests = $stmt->get_result();
+            $passedTests = $conn->query("select TestType, Grade
+                                           from test
+                                           where CustomerID = '$custID' AND LTID = '$ltid'");
 
             $practical_ok = false;
             $theory_ok    = false;
 
-            while ($row = $tests->fetch_assoc()) {
+            while ($row = $passedTests->fetch_assoc()) {
                 if ($row['TestType'] === "Practical" && $row['Grade'] >= 25) {
                     $practical_ok = true;
                 }
@@ -79,45 +59,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             }
         }
 
-        // ---------------------------------------------------------
-        // 4) Issue license (only if previous checks are passed)
-        // ---------------------------------------------------------
         if ($canIssue) {
 
             $licenseNumber = rand(10000000, 99999999);
             $firstIssue    = date("Y-m-d");
             $expire        = date("Y-m-d", strtotime("+5 years"));
 
-            // -------------------------------
-            // Insert into LICENSE table first
-            // -------------------------------
-            $stmt = $conn->prepare("
-                INSERT INTO license (LicenseNumber, IssueDate)
-                VALUES (?, ?)
-            ");
-            $stmt->bind_param("is", $licenseNumber, $firstIssue);
+            $insert = $conn->query("insert into license (LicenseNumber, IssueDate)
+                                           values ('$licenseNumber', '$firstIssue')");
 
-            if (!$stmt->execute()) {
+            if (!$insert) {
                 $message = "<div class='alert alert-danger'>❌ Failed to create license record.</div>";
             } else {
 
-                // -------------------------------
-                // Insert into CUSTLIC table
-                // -------------------------------
-                $stmt = $conn->prepare("
-                    INSERT INTO custlic (CustID, LicenseNumber, LTID, FirstIssueDate, ExpireDate)
-                    VALUES (?, ?, ?, ?, ?)
-                ");
+                $insert = $conn->query("insert into custlic (CustID, LicenseNumber, LTID, FirstIssueDate, ExpireDate)
+                                               values ('$custID', '$licenseNumber', '$ltid', '$firstIssue', '$expire')");
 
-                $stmt->bind_param("siiss",
-                        $custID,
-                        $licenseNumber,
-                        $ltid,
-                        $firstIssue,
-                        $expire
-                );
-
-                if ($stmt->execute()) {
+                if ($insert) {
                     header("Location: card.php?lic=$licenseNumber&cust=$custID");
                     exit();
                 } else {

@@ -10,32 +10,20 @@ require "config.php";
 $message = "";
 $licenseData = null;
 
-// --------------------------------------
-// SEARCH LICENSE BY LICENSE NUMBER
-// --------------------------------------
 if (isset($_POST["search"])) {
 
     $licenseNumber = $_POST["licenseNumber"];
 
-    $stmt = $conn->prepare("
-        SELECT c.CustID, c.LicenseNumber, c.LTID, c.FirstIssueDate, 
-               c.ExpireDate, l.IssueDate
-        FROM CustLic c
-        JOIN License l ON c.LicenseNumber = l.LicenseNumber
-        WHERE c.LicenseNumber = ?
-    ");
-    $stmt->bind_param("i", $licenseNumber);
-    $stmt->execute();
-    $licenseData = $stmt->get_result()->fetch_assoc();
-
+    $select = $conn->query("select c.CustID, c.LicenseNumber, c.LTID, c.FirstIssueDate, c.ExpireDate, l.IssueDate
+                                   from CustLic c
+                                   join License l on c.LicenseNumber = l.LicenseNumber
+                                   where c.LicenseNumber = '$licenseNumber'");
+    $licenseData = $select->fetch_assoc();
     if (!$licenseData) {
         $message = "<div class='alert alert-danger'>❌ License not found!</div>";
     }
 }
 
-// --------------------------------------
-// HANDLE RENEW LICENSE
-// --------------------------------------
 if (isset($_POST["renew"])) {
 
     $cust = $_POST["custId"];
@@ -44,58 +32,33 @@ if (isset($_POST["renew"])) {
     $oldIssue  = $_POST["oldIssue"];
     $oldExpire = $_POST["oldExpire"];
     $ltid      = $_POST["ltid"];
-    $newExpire = $_POST["newExpire"];
+    $years     = $_POST["renewYears"];
 
-    if ($newExpire < $oldExpire) {
-        echo "<div class='alert alert-danger'>The new expire date must be more than old expire date</div>";
-    }
+    $oldExpireDate = strtotime($oldExpire);
+
+    $newExpireDate = strtotime("+$years years", $oldExpireDate);
+    $newExpire = date("Y-m-d", $newExpireDate);
 
     $today = date("Y-m-d");
 
-    // 1) Determine next UpdateID
-    $stmt = $conn->prepare("
-        SELECT IFNULL(MAX(UpdateID),0)+1 AS NextID
-        FROM LicenseUpdate
-        WHERE LicenseNumber = ?
-    ");
-    $stmt->bind_param("i", $licenseNumber);
-    $stmt->execute();
-    $updateId = $stmt->get_result()->fetch_assoc()["NextID"];
+    $select = $conn->query("select IFNULL(MAX(UpdateID),0)+1 AS NextID
+                                   from LicenseUpdate
+                                   where LicenseNumber = '$licenseNumber'");
+    $updateId = $select->fetch_assoc()["NextID"];
 
-    // 2) Insert old values into LicenseUpdate
-    $stmt = $conn->prepare("
-        INSERT INTO LicenseUpdate (LicenseNumber, UpdateID, LTID, IssueDate, ExpireDate)
-        VALUES (?, ?, ?, ?, ?)
-    ");
+    $insert = $conn->query("insert into LicenseUpdate (LicenseNumber, UpdateID, LTID, IssueDate, ExpireDate)
+                                   values ('$licenseNumber', '$updateId', '$ltid', '$oldIssue', '$oldExpire')");
 
-    $stmt->bind_param("iiiss",
-            $licenseNumber,
-            $updateId,
-            $ltid,
-            $oldIssue,
-            $oldExpire
-    );
-    $stmt->execute();
+    $updateLic = $conn->query("update License
+                                      set IssueDate = '$today'
+                                      where LicenseNumber = '$licenseNumber'");
 
-    // 3) Update License → new IssueDate
-    $stmt = $conn->prepare("
-        UPDATE License
-        SET IssueDate = ?
-        WHERE LicenseNumber = ?
-    ");
-    $stmt->bind_param("si", $today, $licenseNumber);
-    $stmt->execute();
+    $updateCustLic = $conn->query("update CustLic
+                                          set ExpireDate = '$newExpire'
+                                          where LicenseNumber = '$licenseNumber'");
 
-    // 4) Update CustLic → new ExpireDate
-    $stmt = $conn->prepare("
-        UPDATE CustLic
-        SET ExpireDate = ?
-        WHERE LicenseNumber = ?
-    ");
-    $stmt->bind_param("si", $newExpire, $licenseNumber);
-
-    if ($stmt->execute()) {
-        $message = "<div class='alert alert-success'>✔ License renewed successfully!</div>";
+    if ($insert && $updateLic && $updateCustLic) {
+        $message = "<div class='alert alert-success'>✔ License renewed successfully for $years year(s)!</div>";
     } else {
         $message = "<div class='alert alert-danger'>❌ Error renewing license.</div>";
     }
@@ -185,8 +148,14 @@ if (isset($_POST["renew"])) {
                 </div>
 
                 <div class="mt-3">
-                    <label>New Expire Date</label>
-                    <input type="date" name="newExpire" class="form-control" required>
+                    <label class="form-label">Renew Period</label>
+
+                    <select name="renewYears" class="form-control" required>
+                        <option value="">Select Renewal Period</option>
+                        <option value="1">1 Year</option>
+                        <option value="2">2 Years</option>
+                        <option value="5">5 Years</option>
+                    </select>
                 </div>
 
                 <!-- Hidden Fields for Update -->

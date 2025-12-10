@@ -9,19 +9,15 @@ require "config.php";
 
 $message = "";
 $licenseData = null;
-$licenseTypes = $conn->query("SELECT LTID, LTName FROM LicenseType");
+$licenseTypes = $conn->query("select LTID, LTName from LicenseType");
 
-// STEP 1 — SEARCH LICENSE BY LICENSE NUMBER
 if (isset($_POST["search"])) {
     $licenseNumber = $_POST["licenseNumber"];
 
-    $query = "
-        SELECT c.CustID, c.LicenseNumber, c.LTID, c.FirstIssueDate, c.ExpireDate,
-               l.IssueDate
-        FROM CustLic c
-        JOIN License l ON c.LicenseNumber = l.LicenseNumber
-        WHERE c.LicenseNumber = '$licenseNumber'
-    ";
+    $query = "select c.CustID, c.LicenseNumber, c.LTID, c.FirstIssueDate, c.ExpireDate, l.IssueDate
+              from CustLic c
+              join License l on c.LicenseNumber = l.LicenseNumber
+              where c.LicenseNumber = '$licenseNumber'";
 
     $result = $conn->query($query);
 

@@ -9,22 +9,16 @@ require "config.php";
 $licenseNumber = $_GET['lic'];
 $custID = $_GET['cust'];
 
-// Fetch customer info
-$stmt = $conn->prepare("SELECT * FROM customer WHERE CustIDNo = ?");
-$stmt->bind_param("s", $custID);
-$stmt->execute();
-$customer = $stmt->get_result()->fetch_assoc();
+$getCustomer = $conn->query("select * from customer where CustIDNo = '$custID'");
+$customer = $getCustomer->fetch_assoc();
 
 // Fetch license info (from custlic + licensetype table)
-$stmt = $conn->prepare("
-    SELECT c.*, l.LTName 
-    FROM custlic c
-    JOIN licensetype l ON c.LTID = l.LTID
-    WHERE c.LicenseNumber = ?
-");
-$stmt->bind_param("i", $licenseNumber);
-$stmt->execute();
-$license = $stmt->get_result()->fetch_assoc();
+$getLicenseInfo = $conn->query("select c.*, l.LTName 
+                                       from custlic c
+                                       join licensetype l on c.LTID = l.LTID
+                                       where c.LicenseNumber = '$licenseNumber'");
+$license = $getLicenseInfo->fetch_assoc();
+$issueDate = $conn->query("select IssueDate from license where LicenseNumber = '$licenseNumber'")->fetch_assoc();
 
 ?>
 
@@ -115,7 +109,7 @@ $license = $stmt->get_result()->fetch_assoc();
                             <strong>3. </strong> <?= $customer['BirthDate'] ?>
                         </div>
                         <div></div>
-                        <div><strong>4a. </strong> <?= $license['FirstIssueDate'] ?></div>
+                        <div><strong>4a. </strong> <?= $issueDate['IssueDate'] ?></div>
                     </div>
 
                     <!-- EXPIRE + FIRST ISSUE -->

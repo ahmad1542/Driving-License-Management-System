@@ -18,16 +18,10 @@ if (isset($_POST["search"])) {
 // ---------------------------
 // GET CURRENT LICENSE DETAILS
 // ---------------------------
-    $stmt = $conn->prepare("
-        SELECT 
-            c.CustID,
-            c.LTID,
-            c.FirstIssueDate,
-            c.ExpireDate,
-            l.IssueDate
-        FROM CustLic c
-        JOIN License l ON c.LicenseNumber = l.LicenseNumber
-        WHERE c.LicenseNumber = ?
+    $stmt = $conn->prepare("select c.CustID, c.LTID, c.FirstIssueDate, c.ExpireDate, l.IssueDate
+        from CustLic c
+        join license l on c.LicenseNumber = l.LicenseNumber
+        where c.LicenseNumber = ?
     ");
     $stmt->bind_param("i", $licenseNumber);
     $stmt->execute();
