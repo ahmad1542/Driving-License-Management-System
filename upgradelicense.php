@@ -28,7 +28,6 @@ if (isset($_POST["search"])) {
     }
 }
 
-// STEP 2 — PERFORM UPGRADE
 if (isset($_POST["upgrade"])) {
 
     $cust = $_POST["custId"];
@@ -40,18 +39,13 @@ if (isset($_POST["upgrade"])) {
     $newExpire = $_POST["newExpire"];
     $today = date("Y-m-d");
 
-    // Prevent choosing same LTID
     if ($oldLTID == $newLTID) {
         $message = "<div class='alert alert-danger'>New license type must be DIFFERENT from the current type!</div>";
     }
     else {
-        // Check if customer passed both tests (Theory + Practical)
-        $testCheck = $conn->query("
-            SELECT COUNT(*) AS PassedTests 
-            FROM Test 
-            WHERE CustomerID = '$cust' AND LTID = '$newLTID' AND Grade >= 18
-        "); // 18 means pass (adjust your logic)
-
+        $testCheck = $conn->query("select COUNT(*) AS PassedTests 
+                                          from Test 
+                                          where CustomerID = '$cust' and LTID = '$newLTID' and Grade >= 25");
         $passed = $testCheck->fetch_assoc()["PassedTests"];
 
         if ($passed < 2) {
@@ -59,37 +53,22 @@ if (isset($_POST["upgrade"])) {
                            Customer did NOT pass both tests for this license type!
                         </div>";
         } else {
-            // Get next UpdateID
-            $resNext = $conn->query("
-                SELECT IFNULL(MAX(UpdateID),0) + 1 AS NextID
-                FROM LicenseUpdate
-                WHERE LicenseNumber = '$licenseNumber'
-            ");
+            $resNext = $conn->query("select IFNULL(MAX(UpdateID),0) + 1 AS NextID
+                                            from LicenseUpdate
+                                            where LicenseNumber = '$licenseNumber'");
             $updateId = $resNext->fetch_assoc()["NextID"];
 
-            // Insert OLD data into LicenseUpdate
-            $insertHistory = "
-                INSERT INTO LicenseUpdate (LicenseNumber, UpdateID, LTID, IssueDate, ExpireDate)
-                VALUES ('$licenseNumber', '$updateId', '$oldLTID', '$oldIssue', '$oldExpire')
-            ";
+            $insertHistory = $conn->query("insert into LicenseUpdate (LicenseNumber, UpdateID, LTID, IssueDate, ExpireDate)
+                                                  values ('$licenseNumber', '$updateId', '$oldLTID', '$oldIssue', '$oldExpire')");
 
-            // Update License → new IssueDate
-            $updateLicense = "
-                UPDATE License SET IssueDate = '$today'
-                WHERE LicenseNumber = '$licenseNumber'
-            ";
+            $updateLicense = $conn->query("update License set IssueDate = '$today'
+                                                  where LicenseNumber = '$licenseNumber'");
 
-            // Update CustLic → new LicenseType + new expire date
-            $updateCustLic = "
-                UPDATE CustLic 
-                SET LTID = '$newLTID', ExpireDate = '$newExpire'
-                WHERE LicenseNumber = '$licenseNumber'
-            ";
+            $updateCustLic = $conn->query("update CustLic 
+                                                  set LTID = '$newLTID', ExpireDate = '$newExpire'
+                                                  where LicenseNumber = '$licenseNumber'");
 
-            if ($conn->query($insertHistory) &&
-                $conn->query($updateLicense) &&
-                $conn->query($updateCustLic)) {
-
+            if ($insertHistory && $updateLicense && $updateCustLic) {
                 $message = "<div class='alert alert-success'>License upgraded successfully!</div>";
             }
             else {
@@ -113,7 +92,7 @@ if (isset($_POST["upgrade"])) {
 
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
-    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">🚗 Driving License Management System</a>
+    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
     <div class="d-flex ms-auto align-items-center gap-3">
 

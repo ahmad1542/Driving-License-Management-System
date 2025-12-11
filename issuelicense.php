@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $canIssue = true;
 
         $hasLicense = $conn->query("select * from custlic 
-                                           where CustID = '$custID' AND LTID = '$ltid'");
+                                           where CustID = '$custID' and LTID = '$ltid'");
         $existingLicense = $hasLicense->fetch_assoc();
 
         if ($existingLicense) {
@@ -36,8 +36,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($canIssue) {
 
             $passedTests = $conn->query("select TestType, Grade
-                                           from test
-                                           where CustomerID = '$custID' AND LTID = '$ltid'");
+                                                from test
+                                                where CustomerID = '$custID' and LTID = '$ltid'");
 
             $practical_ok = false;
             $theory_ok    = false;
@@ -87,9 +87,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
+<html>
 
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,50 +98,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body style="background:linear-gradient(135deg,#d0f5ee,#e8f2ff);">
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
-    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">🚗 Driving License Management System</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
+        <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
-    <div class="d-flex ms-auto align-items-center gap-3">
+        <div class="d-flex ms-auto align-items-center gap-3">
 
-        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin"): ?>
-            <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">🔑 Admin</span>
-        <?php endif; ?>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin"): ?>
+                <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">🔑 Admin</span>
+            <?php endif; ?>
 
-        <span class="fw-semibold"><?php echo $_SESSION['username']; ?></span>
+            <span class="fw-semibold"><?php echo $_SESSION['username']; ?></span>
 
-        <a href="logout.php" class="btn btn-outline-danger">Logout</a>
-    </div>
-</nav>
-
-<div class="container mt-5">
-
-    <h2 class="text-center mb-4 fw-bold" style="color:#003a7a;">
-        🪪 Issue New License
-    </h2>
-
-    <div class="card shadow-sm mx-auto" style="max-width:500px;">
-        <div class="card-body">
-
-            <?= $message ?>
-
-            <form method="POST">
-
-                <label class="form-label">Customer ID</label>
-                <input type="text" name="customerid" class="form-control mb-3" required>
-
-                <label class="form-label">License Type (LTID)</label>
-                <input type="number" name="licensetype" class="form-control mb-3" required>
-
-                <button class="btn btn-primary w-100">
-                    Issue License
-                </button>
-
-            </form>
-
+            <a href="logout.php" class="btn btn-outline-danger">Logout</a>
         </div>
-    </div>
+    </nav>
 
-</div>
+    <div class="container mt-5">
+
+        <h2 class="text-center mb-4 fw-bold" style="color:#003a7a;">
+            🪪 Issue New License
+        </h2>
+
+        <div class="card shadow-sm mx-auto" style="max-width:500px;">
+            <div class="card-body">
+
+                <?= $message ?>
+
+                <form method="POST">
+
+                    <label class="form-label">Customer ID</label>
+                    <input type="text" name="customerid" class="form-control mb-3" required>
+
+                    <label class="form-label">License Type (LTID)</label>
+                    <input type="number" name="licensetype" class="form-control mb-3" required>
+
+                    <button class="btn btn-primary w-100">
+                        Issue License
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
 
 </body>
+
 </html>

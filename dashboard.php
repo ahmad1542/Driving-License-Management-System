@@ -36,8 +36,6 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === "Admin";
             <span class="fw-semibold text-dark">Hello, <?php echo $_SESSION['username']; ?> 👋</span>
             <a href="logout.php" class="btn btn-outline-danger">Logout</a>
         </div>
-
-
     </nav>
 
     <div class="container mt-4">

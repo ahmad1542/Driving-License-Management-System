@@ -12,10 +12,7 @@ $notFound = false;
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $EmpID = trim($_POST['EmpID']);
 
-    $stmt = $conn->prepare("SELECT * FROM Employee WHERE EmployeeID = ?");
-    $stmt->bind_param("i", $EmpID);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    $result = $conn->query("select * from Employee where EmployeeID = '$EmpID'");
 
     if ($result->num_rows > 0) {
         $employee = $result->fetch_assoc();
@@ -25,8 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 }
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
@@ -99,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="container-fluid d-flex justify-content-between align-items-center" style="padding: .7rem 1rem;">
 
             <a class="navbar-brand fw-bold text-primary fs-4 m-0" href="dashboard.php">
-                🚗 Driving License Management System
+                ⛍ Driving License Management System
             </a>
 
             <div class="d-flex align-items-center gap-3">
@@ -123,6 +119,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     <?php if (isset($_GET['deleted']) && $_GET['deleted'] == 0): ?>
         <div class="alert alert-danger text-center">Failed to delete employee.</div>
+    <?php endif; ?>
+
+    <?php if (isset($_GET['error']) && $_GET['error'] === "cannot_delete_admin"): ?>
+        <div class="alert alert-danger">❌ You cannot delete an Admin account.</div>
     <?php endif; ?>
 
     <div class="search-card">

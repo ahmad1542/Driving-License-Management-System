@@ -1,4 +1,9 @@
 <?php
+session_start();
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
 require "config.php";
 
 $success = false;
@@ -11,22 +16,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $SecondName = trim($_POST['SecondName']);
     $LastName   = trim($_POST['LastName']);
 
-    // INSERT EMPLOYEE (with manual ID)
-    $stmt = $conn->prepare("INSERT INTO Employee (EmployeeID, FirstName, SecondName, LastName) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("isss", $EmployeeID, $FirstName, $SecondName, $LastName);
+    $result = $conn->query("insert into Employee (EmployeeID, FirstName, SecondName, LastName) values ('$EmployeeID', '$FirstName', '$SecondName', '$LastName')");
 
-    if ($stmt->execute()) {
+    if ($result) {
 
-        // INSERT MULTI EMAILS
         if (!empty($_POST['emails'])) {
             foreach ($_POST['emails'] as $email) {
 
                 $email = trim($email);
 
                 if ($email !== "") {
-                    $stmt2 = $conn->prepare("INSERT INTO Email (Email, EmployeeID) VALUES (?, ?)");
-                    $stmt2->bind_param("si", $email, $EmployeeID);
-                    $stmt2->execute();
+                    $emailResult = $conn->query("insert into Email (Email, EmployeeID) values ('$email', '$EmployeeID')");
                 }
             }
         }
@@ -38,8 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
+
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -78,6 +78,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </style>
 </head>
 <body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
+    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">
+        ⛍ Driving License Management System
+    </a>
+
+    <div class="d-flex ms-auto align-items-center gap-3">
+        <?php if ($_SESSION['role'] === "Admin"): ?>
+            <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">🔑 Admin</span>
+        <?php endif; ?>
+        <span class="fw-semibold"><?= $_SESSION['username'] ?></span>
+        <a href="logout.php" class="btn btn-outline-danger">Logout</a>
+    </div>
+</nav>
 
 <div class="card-form">
     <h3 class="text-center mb-3" style="color:#003a7a;">➕ Add Employee</h3>

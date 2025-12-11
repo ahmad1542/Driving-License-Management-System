@@ -79,7 +79,7 @@ if (isset($_POST["renew"])) {
 
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
-    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">🚗 Driving License Management System</a>
+    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
     <div class="d-flex ms-auto align-items-center gap-3">
 

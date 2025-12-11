@@ -25,11 +25,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 
-$tests = $conn->query("
-    SELECT TestID, CustomerID, LTID, Grade, TestType
-    FROM Test
-    ORDER BY TestID DESC
-");
+$tests = $conn->query("select TestID, CustomerID, LTID, Grade, TestType
+                              from Test
+                              order by TestID desc");
 ?>
 
 <html>
@@ -44,7 +42,7 @@ $tests = $conn->query("
 <body>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
-    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">🚗 Driving License Management System</a>
+    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
     <div class="d-flex ms-auto align-items-center gap-3">
 

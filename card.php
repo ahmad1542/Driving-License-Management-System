@@ -12,7 +12,6 @@ $custID = $_GET['cust'];
 $getCustomer = $conn->query("select * from customer where CustIDNo = '$custID'");
 $customer = $getCustomer->fetch_assoc();
 
-// Fetch license info (from custlic + licensetype table)
 $getLicenseInfo = $conn->query("select c.*, l.LTName 
                                        from custlic c
                                        join licensetype l on c.LTID = l.LTID
@@ -38,7 +37,7 @@ $issueDate = $conn->query("select IssueDate from license where LicenseNumber = '
 <body style="min-height:100vh; background:linear-gradient(135deg,#d0f5ee,#e8f2ff);">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3 fixed-top">
-    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">🚗 Driving License Management System</a>
+    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
     <div class="d-flex ms-auto align-items-center gap-3">
 

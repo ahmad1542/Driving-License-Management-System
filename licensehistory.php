@@ -15,17 +15,11 @@ if (isset($_POST["search"])) {
 
     $licenseNumber = $_POST["licenseNumber"];
 
-// ---------------------------
-// GET CURRENT LICENSE DETAILS
-// ---------------------------
-    $stmt = $conn->prepare("select c.CustID, c.LTID, c.FirstIssueDate, c.ExpireDate, l.IssueDate
-        from CustLic c
-        join license l on c.LicenseNumber = l.LicenseNumber
-        where c.LicenseNumber = ?
-    ");
-    $stmt->bind_param("i", $licenseNumber);
-    $stmt->execute();
-    $customerInfo = $stmt->get_result()->fetch_assoc();
+    $getLicenseInfo = $conn->query("select c.CustID, c.LTID, c.FirstIssueDate, c.ExpireDate, l.IssueDate
+                                           from CustLic c
+                                           join license l on c.LicenseNumber = l.LicenseNumber
+                                           where c.LicenseNumber = '$licenseNumber'");
+    $customerInfo = $getLicenseInfo->fetch_assoc();
 
     if (!$customerInfo) {
         $message = "<div class='alert alert-danger'>❌ License not found!</div>";
@@ -33,17 +27,11 @@ if (isset($_POST["search"])) {
 
         $fullHistory = [];
 
-        // 1) Get ALL past states from LicenseUpdate in chronological order
-        $stmt = $conn->prepare("
-        SELECT UpdateID, LTID, IssueDate, ExpireDate
-        FROM LicenseUpdate
-        WHERE LicenseNumber = ?
-        ORDER BY UpdateID ASC   -- oldest first
-    ");
-        $stmt->bind_param("i", $licenseNumber);
-        $stmt->execute();
-        $updates = $stmt->get_result();
-
+        $updates = $conn->query("select UpdateID, LTID, IssueDate, ExpireDate
+                                        from LicenseUpdate
+                                        where LicenseNumber = '$licenseNumber'
+                                        order by UpdateID asc");
+        
         while ($row = $updates->fetch_assoc()) {
             $fullHistory[] = [
                     "LTID" => $row["LTID"],
@@ -52,7 +40,6 @@ if (isset($_POST["search"])) {
             ];
         }
 
-        // 2) Append the current license state at the END
         $fullHistory[] = [
                 "LTID" => $customerInfo["LTID"],
                 "IssueDate" => $customerInfo["IssueDate"],
@@ -89,7 +76,7 @@ if (isset($_POST["search"])) {
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
     <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">
-        🚗 Driving License Management System
+        ⛍ Driving License Management System
     </a>
 
     <div class="d-flex ms-auto align-items-center gap-3">

@@ -25,46 +25,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!empty($_FILES["photo"]["name"])) {
         $fileTmp = $_FILES["photo"]["tmp_name"];
 
-        // Max size: 2MB
         if ($_FILES["photo"]["size"] > 2 * 1024 * 1024) {
             echo "<div class='alert alert-danger'>Image too large (max 2MB)</div>";
             exit;
         }
 
-        // Convert to Base64
         $imageData = base64_encode(file_get_contents($fileTmp));
         $mime = mime_content_type($fileTmp);
 
-        // Store image in session
         $_SESSION["customer_photo"] = "data:$mime;base64,$imageData";
     }
 
-    $stmt = $conn->prepare(
-            "insert into Customer (CustIDNo, FName, SName, ThName, LName, BirthDate, BloodGroup, Address)
-         values (?, ?, ?, ?, ?, ?, ?, ?)"
-    );
+    $insertCustomer = $conn->query("insert into Customer (CustIDNo, FName, SName, ThName, LName, BirthDate, BloodGroup, Address)
+                                 values ('$CustIDNo', '$FName', '$SName', '$ThName', '$LName', '$BirthDate', '$BloodGroup', '$Address')");
 
-    $stmt->bind_param(
-            "isssssss",
-            $CustIDNo,
-            $FName,
-            $SName,
-            $ThName,
-            $LName,
-            $BirthDate,
-            $BloodGroup,
-            $Address
-    );
-
-    if ($stmt->execute()) {
+    if ($insertCustomer) {
 
         if (isset($_POST['phones']) && is_array($_POST['phones'])) {
             foreach ($_POST['phones'] as $phone) {
                 $phone = trim($phone);
                 if ($phone !== "") {
-                    $stmt2 = $conn->prepare("insert into PhoneNo (PhoneNo, CustID) values (?, ?)");
-                    $stmt2->bind_param("si", $phone, $CustIDNo);
-                    $stmt2->execute();
+                    $insertPhone = $conn->query("insert into PhoneNo (PhoneNo, CustID) values ('$phone', '$CustIDNo')");
                 }
             }
         }
@@ -117,7 +98,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
-    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">🚗 Driving License Management System</a>
+    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
     <div class="d-flex ms-auto align-items-center gap-3">
 

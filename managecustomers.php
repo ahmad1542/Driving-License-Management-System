@@ -95,7 +95,7 @@ if (isset($_GET['search'])) {
         <div class="container-fluid d-flex justify-content-between align-items-center" style="padding: .7rem 1rem;">
 
             <a class="navbar-brand fw-bold text-primary fs-4 m-0" href="dashboard.php">
-                🚗 Driving License Management System
+                ⛍ Driving License Management System
             </a>
 
             <div class="d-flex align-items-center gap-3">

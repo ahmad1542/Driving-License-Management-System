@@ -1,28 +1,38 @@
 <?php
+session_start();
 require "config.php";
+
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
 
 if (!isset($_GET['id'])) {
     die("No employee selected.");
 }
 
-$EmployeeID = intval($_GET['id']);
+$isAdmin = ($_SESSION['role'] === "Admin");
+$EmployeeID = $_GET['id'];
 
-// حذف الإيميلات المرتبطة بالموظف
-$delEmails = $conn->prepare("DELETE FROM Email WHERE EmployeeID = ?");
-$delEmails->bind_param("i", $EmployeeID);
-$delEmails->execute();
 
-// حذف الموظف نفسه
-$delEmp = $conn->prepare("DELETE FROM Employee WHERE EmployeeID = ?");
-$delEmp->bind_param("i", $EmployeeID);
+if ($roleRow) {
 
-if ($delEmp->execute()) {
-    // تم الحذف بنجاح
-    header("Location: manage_employee.php?deleted=1");
+    $roleName = $_SESSION['role'];
+
+    if ($roleName === "Admin") {
+        header("Location: manageemployee.php?error=cannot_delete_admin");
+        exit();
+    }
+}
+
+$conn->query("delete from Email where EmployeeID = '$EmployeeID'");
+$deleted = $conn->query("delete from Employee where EmployeeID = '$EmployeeID'");
+
+if ($deleted) {
+    header("Location: manageemployee.php?deleted=1");
     exit;
 } else {
-    // فشل الحذف
-    header("Location: manage_employee.php?deleted=0");
+    header("Location: manageemployee.php?deleted=0");
     exit;
 }
 ?>
