@@ -1,5 +1,9 @@
 <?php
 session_start();
+if (!isset($_SESSION['username'])) {
+    header("Location: login.php");
+    exit();
+}
 require "config.php";
 
 $message = "";
@@ -39,19 +43,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                                                 from test
                                                 where CustomerID = '$custID' and LTID = '$ltid'");
 
-            $practical_ok = false;
-            $theory_ok    = false;
+            $practicalOk = false;
+            $theoryOk    = false;
 
             while ($row = $passedTests->fetch_assoc()) {
                 if ($row['TestType'] === "Practical" && $row['Grade'] >= 25) {
-                    $practical_ok = true;
+                    $practicalOk = true;
                 }
                 if ($row['TestType'] === "Theory" && $row['Grade'] >= 25) {
-                    $theory_ok = true;
+                    $theoryOk = true;
                 }
             }
 
-            if (!$practical_ok || !$theory_ok) {
+            if (!$practicalOk || !$theoryOk) {
                 $message = "<div class='alert alert-danger'>
                             ❌ Customer must pass both Practical & Theory (≥25).
                             </div>";

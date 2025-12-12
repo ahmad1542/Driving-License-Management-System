@@ -38,11 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $fileTmp = $_FILES["photo"]["tmp_name"];
 
-        if ($_FILES["photo"]["size"] > 2 * 1024 * 1024) {
-            echo "<div class='alert alert-danger'>Image too large (max 2MB)</div>";
-            exit;
-        }
-
         $imageData = base64_encode(file_get_contents($fileTmp));
         $mime = mime_content_type($fileTmp);
 
@@ -73,20 +68,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <body style="background: linear-gradient(135deg, #d0f5ee, #e8f2ff);">
 
-    <!-- NAVBAR (touches screen edges like original) -->
-    <nav class="navbar navbar-expand-lg bg-white shadow-sm px-4 py-3" style="width:100%; margin:0;">
-        <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">
-            ⛍ Driving License Management System
-        </a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
+        <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
-        <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="d-flex ms-auto align-items-center gap-3">
 
-            <?php if (isset($_SESSION['role']) && strtolower($_SESSION['role']) === "admin"): ?>
-                <span class="badge bg-danger px-3 py-2 fs-6">🔑 Admin</span>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin"): ?>
+                <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">
+                    🔑 Admin
+                </span>
             <?php endif; ?>
 
-            <span class="fw-semibold"><?= htmlspecialchars($_SESSION['username']); ?></span>
-
+        <span class="fw-semibold text-dark"><?php echo $_SESSION['username']; ?></span>
             <a href="logout.php" class="btn btn-outline-danger">Logout</a>
         </div>
     </nav>
@@ -118,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="text" name="fname" class="form-control mb-3" value="<?= $customer['FName'] ?>" required>
 
                     <label class="form-label">Second Name</label>
-                    <input type="text" name="sname" class="form-control mb-3" value="<?= $customer['SName'] ?>">
+                    <input type="text" name="sname" class="form-control mb-3" value="<?= $customer['SName'] ?>" required>
 
                     <label class="form-label">Third Name</label>
                     <input type="text" name="thname" class="form-control mb-3" value="<?= $customer['ThName'] ?>">
@@ -130,13 +123,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="date" name="birth" class="form-control mb-3" value="<?= $customer['BirthDate'] ?>" required>
 
                     <label class="form-label">Blood Group</label>
-                    <input type="text" name="blood" class="form-control mb-3" value="<?= $customer['BloodGroup'] ?>">
+                    <input type="text" name="blood" class="form-control mb-3" value="<?= $customer['BloodGroup'] ?>" required>
 
                     <div class="mb-3">
                         <label class="form-label">Current Photo</label><br>
 
                         <?php if (!empty($_SESSION["customer_photo"])): ?>
-                            <img src="<?= $_SESSION["customer_photo"] ?>" width="120" style="border-radius:8px; border:1px solid #ccc;">
+                            <img src="<?= $_SESSION["customer_photo"] ?>" width="120" style="border-radius:8px; border:1px solid #ccc;" alt="Customer Photo">
                         <?php else: ?>
                             <p>No photo uploaded</p>
                         <?php endif; ?>

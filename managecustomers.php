@@ -36,18 +36,12 @@ if (isset($_GET['search'])) {
 
     <style>
         .big-space {
-            margin-top: 40px !important;
+            margin-top: 40px;
         }
 
         body {
             background: linear-gradient(135deg, #d0f5ee, #e8f2ff);
             font-family: Arial;
-            padding-top: 100px;
-            /* ONLY space below the fixed navbar */
-            padding-left: 0;
-            padding-right: 0;
-            padding-bottom: 20px;
-            /* optional */
         }
 
         .search-card {
@@ -91,25 +85,20 @@ if (isset($_GET['search'])) {
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top w-100" style="padding: 0;">
-        <div class="container-fluid d-flex justify-content-between align-items-center" style="padding: .7rem 1rem;">
 
-            <a class="navbar-brand fw-bold text-primary fs-4 m-0" href="dashboard.php">
-                ⛍ Driving License Management System
-            </a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
+        <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
-            <div class="d-flex align-items-center gap-3">
+        <div class="d-flex ms-auto align-items-center gap-3">
 
-                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin"): ?>
-                    <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 m-0">🔑 Admin</span>
-                <?php endif; ?>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin"): ?>
+                <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">
+                    🔑 Admin
+                </span>
+            <?php endif; ?>
 
-                <span class="fw-semibold m-0"><?= $_SESSION['username'] ?></span>
-
-                <a href="logout.php" class="btn btn-outline-danger">Logout</a>
-
-            </div>
-
+        <span class="fw-semibold text-dark"><?php echo $_SESSION['username']; ?></span>
+            <a href="logout.php" class="btn btn-outline-danger">Logout</a>
         </div>
     </nav>
 

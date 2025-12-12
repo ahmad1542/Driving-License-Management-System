@@ -25,11 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!empty($_FILES["photo"]["name"])) {
         $fileTmp = $_FILES["photo"]["tmp_name"];
 
-        if ($_FILES["photo"]["size"] > 2 * 1024 * 1024) {
-            echo "<div class='alert alert-danger'>Image too large (max 2MB)</div>";
-            exit;
-        }
-
         $imageData = base64_encode(file_get_contents($fileTmp));
         $mime = mime_content_type($fileTmp);
 
@@ -59,6 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -97,127 +93,129 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
-    <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4 py-3">
+        <a class="navbar-brand fw-bold text-primary fs-4" href="dashboard.php">⛍ Driving License Management System</a>
 
-    <div class="d-flex ms-auto align-items-center gap-3">
+        <div class="d-flex ms-auto align-items-center gap-3">
 
-        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin"): ?>
-            <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">🔑 Admin</span>
+            <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "Admin"): ?>
+                <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">
+                    🔑 Admin
+                </span>
+            <?php endif; ?>
+
+            <span class="fw-semibold text-dark"><?php echo $_SESSION['username']; ?></span>
+            <a href="logout.php" class="btn btn-outline-danger">Logout</a>
+        </div>
+    </nav>
+
+    <div class="card-form">
+        <h3 class="text-center mb-3" style="color:#003a7a;">➕ Add Customer</h3>
+
+        <?php if ($success): ?>
+            <div class="alert alert-success">Customer added successfully.</div>
         <?php endif; ?>
 
-        <span class="fw-semibold"><?php echo $_SESSION['username']; ?></span>
+        <?php if ($error): ?>
+            <div class="alert alert-danger">Error adding customer.</div>
+        <?php endif; ?>
 
-        <a href="logout.php" class="btn btn-outline-danger">Logout</a>
-    </div>
-</nav>
+        <form method="POST" enctype="multipart/form-data">
 
-<div class="card-form">
-    <h3 class="text-center mb-3" style="color:#003a7a;">➕ Add Customer</h3>
-
-    <?php if ($success): ?>
-        <div class="alert alert-success">Customer added successfully.</div>
-    <?php endif; ?>
-
-    <?php if ($error): ?>
-        <div class="alert alert-danger">Error adding customer.</div>
-    <?php endif; ?>
-
-    <form method="POST" enctype="multipart/form-data">
-
-        <div class="mb-3">
-            <label class="form-label">Customer ID</label>
-            <input type="text" name="CustIDNo" inputmode="numeric" pattern="[0-9]*"
-                   class="form-control" required>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">First Name</label>
-                <input type="text" name="FName" class="form-control" required>
+            <div class="mb-3">
+                <label class="form-label">Customer ID</label>
+                <input type="text" name="CustIDNo" inputmode="numeric" pattern="[0-9]*"
+                    class="form-control" required>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Second Name</label>
-                <input type="text" name="SName" class="form-control" required>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">First Name</label>
+                    <input type="text" name="FName" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Second Name</label>
+                    <input type="text" name="SName" class="form-control" required>
+                </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Third Name</label>
-                <input type="text" name="ThName" class="form-control" required>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Third Name</label>
+                    <input type="text" name="ThName" class="form-control" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input type="text" name="LName" class="form-control" required>
+                </div>
             </div>
 
-            <div class="col-md-6 mb-3">
-                <label class="form-label">Last Name</label>
-                <input type="text" name="LName" class="form-control" required>
+            <div class="mb-3">
+                <label class="form-label">Birth Date</label>
+                <input type="date" name="BirthDate" class="form-control" style="direction:ltr;" required>
             </div>
-        </div>
 
-        <div class="mb-3">
-            <label class="form-label">Birth Date</label>
-            <input type="date" name="BirthDate" class="form-control" style="direction:ltr;" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Blood Group</label>
-            <select name="BloodGroup" class="form-control" required>
-                <option value="">Select</option>
-                <option>A+</option>
-                <option>A-</option>
-                <option>B+</option>
-                <option>B-</option>
-                <option>O+</option>
-                <option>O-</option>
-                <option>AB+</option>
-                <option>AB-</option>
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Customer Photo</label>
-            <input type="file" name="photo" accept="image/*" class="form-control">
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Address</label>
-            <textarea name="Address" class="form-control" rows="2" required></textarea>
-        </div>
-
-        <div class="mb-2" id="phonesArea">
-            <label class="form-label">Phone Numbers</label>
-
-            <div class="input-group mb-2">
-                <input type="text" name="phones[]" class="form-control" placeholder="Enter phone number">
+            <div class="mb-3">
+                <label class="form-label">Blood Group</label>
+                <select name="BloodGroup" class="form-control" required>
+                    <option value="">Select</option>
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                </select>
             </div>
-        </div>
 
-        <button type="button" class="btn btn-secondary mb-3" onclick="addPhone()">
-            ➕ Add Another Phone
-        </button>
+            <div class="mb-3">
+                <label class="form-label">Customer Photo</label>
+                <input type="file" name="photo" accept="image/*" class="form-control">
+            </div>
 
-        <button type="submit" class="icon-btn w-100">
-            💾 Save Customer
-        </button>
+            <div class="mb-3">
+                <label class="form-label">Address</label>
+                <textarea name="Address" class="form-control" rows="2" required></textarea>
+            </div>
 
-        <button type="button" class="icon-btn w-100 mt-3"
+            <div class="mb-2" id="phonesArea">
+                <label class="form-label">Phone Numbers</label>
+
+                <div class="input-group mb-2">
+                    <input type="text" name="phones[]" class="form-control" placeholder="Enter phone number">
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-secondary mb-3" onclick="addPhone()">
+                ➕ Add Another Phone
+            </button>
+
+            <button type="submit" class="icon-btn w-100">
+                💾 Save Customer
+            </button>
+
+            <button type="button" class="icon-btn w-100 mt-3"
                 onclick="window.location='managecustomers.php'">
-            ↩ Back to Manage
-        </button>
+                ↩ Back to Manage
+            </button>
 
-    </form>
-</div>
+        </form>
+    </div>
 
-<script>
-    function addPhone() {
-        const area = document.getElementById('phonesArea');
-        const div = document.createElement('div');
-        div.className = "input-group mb-2";
-        div.innerHTML = '<input type="text" name="phones[]" class="form-control" placeholder="Enter phone number">';
-        area.appendChild(div);
-    }
-</script>
+    <script>
+        function addPhone() {
+            var area = document.getElementById('phonesArea');
+            var div = document.createElement('div');
+            div.className = "input-group mb-2";
+            div.innerHTML = '<input type="text" name="phones[]" class="form-control" placeholder="Enter phone number">';
+            area.appendChild(div);
+        }
+    </script>
 
 </body>
+
 </html>

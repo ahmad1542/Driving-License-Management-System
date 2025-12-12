@@ -51,7 +51,6 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === "Admin";
                 </a>
             </div>
 
-
             <div class="col-12 col-md-6 col-lg-4">
                 <a href="managetests.php" class="text-decoration-none text-dark">
                     <div class="card shadow card-box h-100">
@@ -100,7 +99,7 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === "Admin";
             <?php if ($isAdmin): ?>
                 <div class="col-12 col-md-6 col-lg-4">
                     <a href="manageemployee.php" class="text-decoration-none text-dark">
-                        <div class="card shadow card-box h-100" style="border-left: 5px solid #dc3545;">
+                        <div class="card shadow card-box h-100" style="border-left: 5px solid crimson;">
                             <h3>👨‍💼 Manage Employees</h3>
                             <p>Add, edit, delete, and view employee accounts.</p>
                         </div>
