@@ -56,7 +56,7 @@ if ($getEmpInfo->num_rows > 0) {
 }
 
 $getEmails = $conn->query("select Email from Email where EmployeeID = '$id'");
-while ($row = $resEmails->fetch_assoc()) {
+while ($row = $getEmails->fetch_assoc()) {
     $emails[] = $row['Email'];
 }
 ?>
